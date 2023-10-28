@@ -1,6 +1,6 @@
-const cors = require('cors');
-const createConnection = require('mysql2');
-const express = require('express');
+import cors from 'cors';
+import { createConnection } from 'mysql2';
+import express, { json } from 'express';
 const app = express();
 const db = createConnection({
     host: 'localhost',
@@ -11,22 +11,33 @@ const db = createConnection({
 
 app.post('/login', (req, res) => {
 
+    const email = req.body.email;
+    const senha = req.body.senha;
+
     const sql = "SELECT * FROM usuarios WHERE email = ? AND senha = ?";
 
-    db.query(sql, [req.body.email, req.body.senha], (err, data) => {
-        data = user.find(user => user.email === email && user.senha === senha);
-        if(data) {
-            return res.status(200).json(user);
+    db.query(sql, [email, senha], (err, result) => {
+        if(err) {
+            req.setEncoding({err: err});
         }else{
-            return res.status(401).json({ message: 'Credenciais inválidas'});
+            if (result.lenght > 0) {
+                result.send(result);
+            }else{
+                result.send({message: "E-mail e/ou senha incorretos"})
+            }
         }
     });
 
 });
 
-app.use(express.json());
+app.use(json());
 app.use(cors());
-app.use(routes);
+app.use((req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:3001");
+    res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, PATCH, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Origin, X-Api-Key, X-Requested-With, Accept, Authorization");
+    next();
+})
 
 
 app.listen(3000, () => {
