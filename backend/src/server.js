@@ -2,6 +2,12 @@ import cors from 'cors';
 import { createConnection } from 'mysql2';
 import express, { json } from 'express';
 const app = express();
+
+{ header: 'Access-Control-Allow-Credentials: true' };
+{ header: 'Access-Control-Allow-Origin: http://localhost:3001' };
+{ header: 'Access-Control-Allow-Methods: GET,OPTIONS,PATCH,DELETE,POST,PUT' };
+{ header: 'Access-Control-Allow-Headers: X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization' }; 
+
 const db = createConnection({
     host: 'localhost',
     user: 'root',
@@ -21,24 +27,18 @@ app.post('/login', (req, res) => {
             req.setEncoding({err: err});
         }else{
             if (result.lenght > 0) {
-                result.send(result);
+                res.send(result);
             }else{
-                result.send({message: "E-mail e/ou senha incorretos"})
+                res.send({message: "E-mail e/ou senha incorretos"})
             }
         }
     });
 
 });
 
+
 app.use(json());
 app.use(cors());
-app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "http://localhost:3001");
-    res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, PATCH, DELETE, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Origin, X-Api-Key, X-Requested-With, Accept, Authorization");
-    next();
-})
-
 
 app.listen(3000, () => {
     console.log('Listening on port 3000');
